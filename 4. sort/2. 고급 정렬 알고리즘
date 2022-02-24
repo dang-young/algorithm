@@ -46,3 +46,61 @@ quickSort(A[],p,r){
 (6) for 루프 1번 돌 때: 3구역은 한칸씩 줄어듦/1구역 또는 2구역은 한칸 늘어남/2구역이 늘어날때는 j만 1증가/1구역이 늘어날 때는 i,j 모두 1 증가(swap 발생)
 - 수행시간: 최선+평균_O(nlogn)..항상 반씩 partition
            최악_O(n^2)..항상 한쪽으로 몰리도록 partition
+
+3. 힙 정렬(Heap Sort)
+- 힙 자료구조를 사용하는 정렬 알고리즘
+※ 힙에는 최소힙, 최대힙이 있으며 여기서는 최소힙 기준으로 설명
+3.1 힙
+- 힙은 다음의 성질을 만족하는 이진트리이다.
+(1) 맨 아래 층을 제외하고 완전히 채워져있다.(맨 아래층은 왼쪽부터 재워짐)
+(2) 각 노드의 값은 자기 자식의 값보다 작다.(작거나 같다)
+-> 이진트리의 루트 노드에 회솟값이 자리한다(최소힙)
+- 힙 정렬은 (1)주어진 배열을 힙으로 만들고 (2)힙에서 최솟값을 하나씩 제거 (3)힙성질을 만족하도록 수선 (4)원소가 사라질 때까지 반복의 순서로 진행된다.
+
+3.2 힙 만들기
+- 힙은 꽉 찬 이진 트리이므로 배열을 이용해 표현 가능(링크, 포인터 사용X)
+- A[k]의 자식은 A[2k], A[2k+1], A[k]의 부모는 A[k/2]
+
+buildHeap(A[], n){
+  for i<-n/2 downto 1 //리프가 아닌 노드 중 맨 마지막 노드부터 검증(자식노드들과 비교하여 swap)
+    heapify(A, i, n); //n: 전체 배열의 크기(최대 인덱스)
+}
+
+heapify(A[], k, n){ //A[k]를 루트로 하는 트리를 힙성질을 만족하도록 수선한다(A[k]의 두 자식을 루트로 하는 서브트리는 힙 성질을 만족)
+  left<-2k, right<-2k+1;
+  //작은 자식 고르기
+  if(right<=n) then smaller = A[left]<A[right]? left:right; //left, right 노드 모두 존재(smaller: index of small child node)
+  else if(left<=n) then smaller = left; //left 노드만 존재
+  else return; //A[k]가 리프노드
+  //재귀적 조정
+  if(A[smaller]<A[k]) then{
+    A[k]<->A[smaller];
+    heapify(A, smaller, n);
+   }
+}
+
+- buildHeap() 소요시간: O(n)
+: heapify() 소요시간(=서브트리 높이) = O(logn) * buildHeap()에서 heapify()를 호출하는 횟수 = n/2 = O(n) -> O(nlogn)
+: 단, heapify() 입력트리는 올라갈수록 높이가 그리 크지 않은 경우가 많으므로 O(logn)은 과한 상한 선으로 볼 수 있으므로 O(n) 취급 가능
+
+3.3 정렬
+
+heapSort(A, n){
+  buildHeap(A,n);
+  for i<-n downto 2{
+    A[1]<->A[i];
+    heapify(A,1,i-1);//루트노드를 제거하였으므로 전체 트리 사이즈는 -1
+  }
+}
+    
+- 루트 노드에 있는 원소를 제거
+- 맨 끝에 있는 원소를 루트 노드로 옮겨 새로운 루트로 삼음(맨 끝자리에 제거한 루트 노드 저장_공간 활용)
+- heapify(): 힙 수선
+-> 반복(결과: 역순 정렬)
+
+3.4 수행 시간
+- buildHeap: O(n)
+- for문 횟수: n-1
+- heapify: O(logn)
+=> O(nlogn)
+※ 원소간의 비료를 기반으로 하는 정렬은 아무리 잘해도 최악의 경우 O(nlogn)을 밑돌 수 없다.
